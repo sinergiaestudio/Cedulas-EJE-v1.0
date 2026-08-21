@@ -45,18 +45,6 @@ npm run build
 
 El resultado se crea en `dist/`.
 
-## Publicar con GitHub Pages
-
-El repositorio incluye un flujo automático en `.github/workflows/deploy-pages.yml`.
-
-1. Crear un repositorio vacío en GitHub.
-2. Subir todo el contenido de este proyecto a la rama `main`.
-3. Ir a **Settings → Pages**.
-4. En **Build and deployment**, seleccionar **GitHub Actions**.
-5. Abrir la pestaña **Actions** y esperar a que termine “Publicar en GitHub Pages”.
-
-La aplicación utiliza rutas relativas, por lo que funciona tanto en un repositorio de proyecto como en un sitio de usuario.
-
 ## Límites deliberados
 
 - Los PDFs escaneados como imagen requieren OCR previo.
