@@ -36,6 +36,9 @@ jobs:
       - name: Compilar
         run: npm run build
 
+      - name: Verificar función Observar
+        run: node scripts/verify-dist.mjs
+
       - name: Configurar GitHub Pages
         if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v6
