@@ -20,17 +20,36 @@ async function collect(directory) {
 
 await collect(root);
 const bundle = chunks.join("\n");
+
 const required = [
   "Observar",
   "eje-observe-button",
   "caseNumber",
+  "Expediente",
+  "copiado",
+  "Pegalo en el buscador de EJE",
+  "sec29-eje-observar",
   "v1.1",
 ];
 
+const forbidden = [
+  "resolveEjeExpId",
+  "/iol-api/api/public/expedientes/lista",
+  "/iol-api/api/public/expedientes/ficha",
+  "abierto directamente en Actuaciones de EJE",
+];
+
 const missing = required.filter((token) => !bundle.includes(token));
-if (missing.length) {
-  console.error(`La compilación no contiene: ${missing.join(", ")}`);
+const presentForbidden = forbidden.filter((token) => bundle.includes(token));
+
+if (missing.length || presentForbidden.length) {
+  if (missing.length) {
+    console.error(`La compilación no contiene: ${missing.join(", ")}`);
+  }
+  if (presentForbidden.length) {
+    console.error(`La compilación conserva lógica que debía eliminarse: ${presentForbidden.join(", ")}`);
+  }
   process.exit(1);
 }
 
-console.log("Compilación verificada: la acción Observar y la versión 1.1 están incluidas.");
+console.log("Compilación verificada: Observar copia el expediente y abre EJE sin resolver expId.");
