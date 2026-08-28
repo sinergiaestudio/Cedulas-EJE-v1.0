@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <img alt="versión" src="https://img.shields.io/badge/versión-1.1.2-821529">
+  <img alt="versión" src="https://img.shields.io/badge/versión-1.2.0-821529">
   <img alt="React y TypeScript" src="https://img.shields.io/badge/React%20%2B%20TypeScript-aplicación-365F91">
   <img alt="PDF local" src="https://img.shields.io/badge/PDF-procesamiento%20local-2F7D5C">
   <img alt="revisión humana" src="https://img.shields.io/badge/revisión-humana-B99655">
@@ -66,7 +66,7 @@ Lista aprobada / acceso asistido a EJE
 | **Remitir** | La actuación ordena expresamente remitir digitalmente la pieza a la Oficina de Notificaciones para su diligenciamiento. | La cédula puede seleccionarse para el lote. |
 | **Observar** | La providencia individualiza una cédula y dispone expresamente su observación. | Se excluye del lote y aparece la acción **Observar**. |
 | **Revisar** | Hay códigos, lenguaje parcial, actuación mixta o evidencia insuficiente para una decisión segura. | No se incorpora automáticamente. |
-| **Ignorar** | La actuación no pertenece al circuito de remisión a la Oficina de Notificaciones. | Se descarta del listado operativo. |
+| **Ignorar** | La actuación no pertenece al circuito de remisión a la Oficina de Notificaciones. | No genera una fila operativa. |
 
 La detección contempla:
 
@@ -74,13 +74,46 @@ La detección contempla:
 - actuaciones mixtas con piezas remitidas y observadas;
 - códigos repetidos;
 - cédulas Ley 22.172 ajenas al circuito;
-- números de actuación que no deben confundirse con códigos de cédula;
 - separaciones, guiones invisibles y caracteres de ancho cero introducidos por algunos PDFs;
 - evidencia página por página para verificar la clasificación.
 
+## Analizador por cláusulas — v1.2
+
+La versión 1.2 deja de extraer indiscriminadamente todos los números con formato `NNNN/AAAA` de una página. Cada numeración debe quedar vinculada con una cláusula procesal concreta:
+
+- el código presentado a confronte;
+- la pieza que se remite digitalmente;
+- la cédula que se dispone observar.
+
+Esto evita confundir como cédulas:
+
+- el número del expediente;
+- el número de la providencia;
+- las actuaciones citadas como fundamento de una observación.
+
+La fórmula positiva se comprueba mediante tres elementos concurrentes:
+
+```text
+remítase / remítanse digitalmente
++ Oficina de Notificaciones del fuero
++ diligenciamiento
+```
+
+Las páginas ajenas al circuito no generan decenas de exclusiones artificiales: quedan registradas únicamente en el control página por página.
+
+## Evidencia operativa
+
+El desplegable **Ver evidencia** muestra ahora el fragmento del proveído que sustenta la decisión, no el encabezado institucional.
+
+- Para **Remitir**, comienza en la cláusula de confronte y conserva la orden de remisión.
+- Para **Observar**, comienza en `Obsérvese la cédula…` e incluye el motivo.
+- Para Ley 22.172, muestra la cláusula específica que determina su tratamiento.
+
+La evidencia se recorta por extensión, pero preserva la proposición operativa completa siempre que el texto del PDF lo permita.
+
 ## Acción Observar
 
-Desde la versión 1.1.2, las cédulas expresamente observadas muestran el botón **Observar**.
+Las cédulas expresamente observadas muestran el botón **Observar**.
 
 Al presionarlo:
 
@@ -117,8 +150,6 @@ Cédulas EJE forma parte de la familia **Herramientas SEC29** y comparte:
 - procesamiento local y mensajes de seguridad visibles;
 - crédito de autoría común.
 
-La marca utiliza una pieza documental, un sobre y una ruta de decisión como síntesis del recorrido **PDF → análisis → lote**.
-
 ## Privacidad y límites
 
 - el PDF se procesa íntegramente en el navegador;
@@ -136,6 +167,7 @@ Requiere Node.js 22.13 o posterior.
 
 ```bash
 npm ci
+npm run test:analysis
 npm run dev
 ```
 
@@ -145,20 +177,21 @@ Compilación de producción:
 npm run build
 ```
 
-El workflow de GitHub Pages compila la aplicación y verifica que el bundle publicado conserve la acción **Observar**, la extracción del expediente y la versión correspondiente.
+La compilación ejecuta pruebas de regresión que verifican remisiones, observaciones, actuaciones mixtas, páginas ajenas y evidencia operativa antes de generar el sitio.
 
 ## Estructura principal
 
 ```text
 src/
-├── CedulasApp.tsx       análisis, revisión y resultados
+├── CedulasApp.tsx       interfaz, revisión y resultados
+├── cedulaAnalysis.ts    analizador por cláusulas y evidencia
 ├── ejeBookmarklet.ts    carga asistida dentro de EJE
 ├── index.css            interfaz y adaptación responsive
 └── main.tsx             arranque de React
-public/
-├── pdf.worker.min.mjs   lectura local del PDF
-├── sec29-suite-shell.js navegación común
-└── og.png               imagen social
+scripts/
+├── test-analysis.mjs    regresiones del analizador
+├── repair-vite-patch.mjs integración de compatibilidad
+└── verify-dist.mjs      control del bundle publicado
 ```
 
 ## Repositorios relacionados
