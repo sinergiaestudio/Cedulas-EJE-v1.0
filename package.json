@@ -1,11 +1,12 @@
 {
   "name": "cedulas-eje",
   "private": true,
-  "version": "1.1.2",
+  "version": "1.2.0",
   "type": "module",
   "scripts": {
     "dev": "node scripts/repair-vite-patch.mjs && vite",
-    "build": "node scripts/repair-vite-patch.mjs && tsc -b && vite build",
+    "test:analysis": "node --experimental-strip-types --no-warnings scripts/test-analysis.mjs",
+    "build": "node scripts/repair-vite-patch.mjs && npm run test:analysis && tsc -b && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
