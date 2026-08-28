@@ -90,6 +90,65 @@ if (source.includes(legacyStart)) {
   process.exit(1);
 }
 
+const analysisMarker = "function patchAnalysisV2(source: string)";
+const workflowMarker = "function sec29ObservationWorkflow(): Plugin";
+const analysisFunction = String.raw`
+function patchAnalysisV2(source: string) {
+  let code = source;
+  const importAnchor = 'import { createEjeBookmarklet } from "./ejeBookmarklet";';
+  const analysisImport = 'import { analyzePageV2, analyzeTextsV2 } from "./cedulaAnalysis";';
+
+  if (!code.includes(analysisImport)) {
+    if (!code.includes(importAnchor)) {
+      throw new Error("[sec29-analysis-v2] No se encontró el import del bookmarklet.");
+    }
+    code = code.replace(importAnchor, importAnchor + "\n" + analysisImport);
+  }
+
+  const analysisBlock = /export function analyzePage\([\s\S]*?\n}\n\nexport function analyzeTexts\([\s\S]*?\n}\n\nfunction reconstructPageText/;
+  if (!analysisBlock.test(code)) {
+    throw new Error("[sec29-analysis-v2] No se encontró el analizador anterior.");
+  }
+
+  code = code.replace(
+    analysisBlock,
+    "export const analyzePage = analyzePageV2;\n\n"
+      + "export const analyzeTexts = analyzeTextsV2;\n\n"
+      + "function reconstructPageText",
+  );
+
+  code = code.replace(
+    "v1.0 · criterio conservador y trazable",
+    "v1.2 · evidencia operativa y detección por cláusulas",
+  );
+
+  return code;
+}
+`;
+
+if (!source.includes(analysisMarker)) {
+  const insertionPoint = source.indexOf(workflowMarker);
+  if (insertionPoint < 0) {
+    console.error("No se encontró el punto de inserción del analizador v2.");
+    process.exit(1);
+  }
+  source = source.slice(0, insertionPoint) + analysisFunction + "\n" + source.slice(insertionPoint);
+  changed = true;
+  console.log("Analizador v2 incorporado al flujo de compilación.");
+}
+
+const legacyTransform = "return { code: patchCedulasApp(source), map: null };";
+const analysisTransform = "return { code: patchAnalysisV2(patchCedulasApp(source)), map: null };";
+
+if (source.includes(legacyTransform)) {
+  source = source.replace(legacyTransform, analysisTransform);
+  changed = true;
+  console.log("El analizador v2 quedó enlazado después del flujo Observar.");
+} else if (!source.includes(analysisTransform)) {
+  console.error("No se encontró la transformación principal de CedulasApp.");
+  process.exit(1);
+}
+
 if (changed) {
   await writeFile(path, source, "utf8");
 }
