@@ -29,7 +29,10 @@ const required = [
   "copiado",
   "Pegalo en el buscador de EJE",
   "sec29-eje-observar",
-  "v1.1",
+  "v1.2",
+  "evidencia operativa y detección por cláusulas",
+  "La actuación dispone observar esta cédula",
+  "Se comprobó el código de cédula",
 ];
 
 const forbidden = [
@@ -52,4 +55,4 @@ if (missing.length || presentForbidden.length) {
   process.exit(1);
 }
 
-console.log("Compilación verificada: Observar copia el expediente y abre EJE sin resolver expId.");
+console.log("Compilación verificada: análisis v1.2, evidencia operativa y flujo Observar simplificado.");
