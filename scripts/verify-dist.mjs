@@ -33,6 +33,12 @@ const required = [
   "evidencia operativa y detección por cláusulas",
   "La actuación dispone observar esta cédula",
   "Se comprobó el código de cédula",
+  "Actuaciones y vencimientos",
+  "Creador de actuaciones en lote",
+  "Creador de Lotes - Actuaciones",
+  "Creador de Lotes - Cédulas",
+  "Confronte de Liquidaciones EJF",
+  "#lotes-actuaciones",
 ];
 
 const forbidden = [
@@ -55,4 +61,4 @@ if (missing.length || presentForbidden.length) {
   process.exit(1);
 }
 
-console.log("Compilación verificada: análisis v1.2, evidencia operativa y flujo Observar simplificado.");
+console.log("Compilación verificada: análisis v1.2, evidencia operativa, flujo Observar y menú SEC29 completo.");
