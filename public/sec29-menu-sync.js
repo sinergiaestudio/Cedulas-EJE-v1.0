@@ -3,9 +3,18 @@
 
   const BASE = "https://sinergiaestudio.github.io";
   const MAIN = `${BASE}/herramientas-j15sec29/`;
-  const CATALOG_VERSION = "6.5.1";
+  const IA_JUDICIAL = "https://biblioteca-judicial-inteligente.arielmarcelogomez7.chatgpt.site";
+  const CATALOG_VERSION = "6.6.0";
 
   const modules = [
+    {
+      group: "IA JUDICIAL",
+      id: "sistema-actuaciones-judiciales",
+      label: "Sistema de Actuaciones Judiciales",
+      detail: "Entrada unificada · acceso autenticado",
+      icon: "IA",
+      url: IA_JUDICIAL,
+    },
     {
       group: "Mensajería y reportes",
       id: "procesadores",

@@ -11,6 +11,8 @@
 <p align="center">
   <a href="https://sinergiaestudio.github.io/Cedulas-EJE-v1.0/"><strong>Abrir Cédulas EJE</strong></a>
   ·
+  <a href="https://biblioteca-judicial-inteligente.arielmarcelogomez7.chatgpt.site">Sistema de Actuaciones Judiciales</a>
+  ·
   <a href="https://sinergiaestudio.github.io/herramientas-j15sec29/">Herramientas SEC29</a>
   ·
   <a href="#criterios-de-decisión">Criterios</a>
@@ -19,7 +21,7 @@
 </p>
 
 <p align="center">
-  <img alt="versión" src="https://img.shields.io/badge/versión-1.2.0-821529">
+  <img alt="versión" src="https://img.shields.io/badge/versión-1.2.1-821529">
   <img alt="React y TypeScript" src="https://img.shields.io/badge/React%20%2B%20TypeScript-aplicación-365F91">
   <img alt="PDF local" src="https://img.shields.io/badge/PDF-procesamiento%20local-2F7D5C">
   <img alt="revisión humana" src="https://img.shields.io/badge/revisión-humana-B99655">

@@ -11,7 +11,9 @@ function replaceRequired(source: string, search: string, replacement: string, la
 }
 
 function patchCedulasApp(source: string) {
-  let code = source;
+  // Git puede materializar CRLF en Windows; los contratos de transformación
+  // usan LF para producir exactamente el mismo artefacto en Pages y local.
+  let code = source.replace(/\r\n/g, "\n");
 
   code = replaceRequired(
     code,
@@ -188,46 +190,22 @@ function patchCedulasApp(source: string) {
     code,
     "  const exportAudit = () => {",
     lines(
-      "  const resolveEjeExpId = async (caseNumber: string) => {",
-      "    const controller = new AbortController();",
-      "    const timeout = window.setTimeout(() => controller.abort(), 7000);",
-      "    const normalizedCase = caseNumber.replace(/\\s/g, \"\").toLowerCase();",
-      "",
+      "  const copyToClipboard = async (value: string) => {",
       "    try {",
-      "      const filter = JSON.stringify({ identificador: caseNumber });",
-      "      const info = JSON.stringify({ filter, tipoBusqueda: \"CAU\", page: 0, size: 10 });",
-      "      const listResponse = await fetch(\"https://eje.jusbaires.gob.ar/iol-api/api/public/expedientes/lista\", {",
-      '        method: "POST",',
-      '        headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },',
-      "        body: new URLSearchParams({ info }),",
-      '        credentials: "omit",',
-      "        signal: controller.signal,",
-      "      });",
-      "",
-      "      if (!listResponse.ok) throw new Error(`Búsqueda EJE: ${listResponse.status}`);",
-      "      const payload = await listResponse.json() as { content?: Array<{ expId?: number }> };",
-      "      const candidates = unique((payload.content ?? [])",
-      "        .map((item) => item.expId)",
-      "        .filter((value): value is number => Number.isInteger(value)));",
-      "",
-      "      for (const candidate of candidates) {",
-      "        try {",
-      "          const fichaResponse = await fetch(`https://eje.jusbaires.gob.ar/iol-api/api/public/expedientes/ficha?expId=${candidate}`, {",
-      '            credentials: "omit",',
-      "            signal: controller.signal,",
-      "          });",
-      "          if (!fichaResponse.ok) continue;",
-      "          const ficha = await fichaResponse.json() as { numero?: number; anio?: number; sufijo?: number | string };",
-      "          const resolved = `${ficha.numero}/${ficha.anio}-${ficha.sufijo}`.toLowerCase();",
-      "          if (resolved === normalizedCase) return candidate;",
-      "        } catch {",
-      "          // Si la ficha pública no responde, se conserva el primer candidato exacto de la búsqueda.",
-      "        }",
-      "      }",
-      "",
-      "      return candidates[0] ?? null;",
-      "    } finally {",
-      "      window.clearTimeout(timeout);",
+      "      await navigator.clipboard.writeText(value);",
+      "      return true;",
+      "    } catch {",
+      "      const field = document.createElement(\"textarea\");",
+      "      field.value = value;",
+      "      field.style.position = \"fixed\";",
+      "      field.style.opacity = \"0\";",
+      "      field.style.pointerEvents = \"none\";",
+      "      document.body.appendChild(field);",
+      "      field.focus();",
+      "      field.select();",
+      "      const copied = document.execCommand(\"copy\");",
+      "      field.remove();",
+      "      return copied;",
       "    }",
       "  };",
       "",
@@ -239,23 +217,23 @@ function patchCedulasApp(source: string) {
       "    }",
       "",
       "    setOpeningCase(row.id);",
-      '    setEjeNotice(`Abriendo ${row.caseNumber} en EJE…`);',
-      "    void navigator.clipboard?.writeText(row.caseNumber).catch(() => undefined);",
-      '    const popup = window.open(EJE_HOME, "_blank");',
+      '    setEjeNotice(`Copiando ${row.caseNumber} y abriendo EJE…`);',
+      '    const popup = window.open(EJE_HOME, "sec29-eje-observar");',
+      "    const copied = await copyToClipboard(row.caseNumber);",
       "",
-      "    try {",
-      "      const expId = await resolveEjeExpId(row.caseNumber);",
-      "      if (!expId) throw new Error(\"No se obtuvo el identificador interno.\");",
-      "      const directUrl = `https://eje.jusbaires.gob.ar/iurix-ui/u/expediente/expId/${expId}/inicio/list`;",
-      "      if (popup && !popup.closed) popup.location.href = directUrl;",
-      '      else window.open(directUrl, "_blank", "noopener,noreferrer");',
-      '      setEjeNotice(`Expediente ${row.caseNumber} abierto directamente en Actuaciones de EJE.`);',
-      "    } catch {",
-      '      if (!popup || popup.closed) window.open(EJE_HOME, "_blank", "noopener,noreferrer");',
-      '      setEjeNotice(`Se abrió el buscador de EJE y se copió ${row.caseNumber}. Pegalo en la búsqueda si no se resolvió el acceso directo.`);',
-      "    } finally {",
-      "      setOpeningCase(null);",
+      "    if (popup && !popup.closed) popup.focus();",
+      "",
+      "    if (!popup) {",
+      "      setEjeNotice(copied",
+      "        ? `Expediente ${row.caseNumber} copiado. El navegador bloqueó la pestaña de EJE; abrila y pegalo en el buscador.`",
+      "        : `No fue posible abrir EJE ni copiar automáticamente. Copiá el expediente ${row.caseNumber}.`);",
+      "    } else {",
+      "      setEjeNotice(copied",
+      "        ? `Expediente ${row.caseNumber} copiado. Pegalo en el buscador de EJE y presioná Enter.`",
+      "        : `EJE quedó abierto. Copiá manualmente el expediente ${row.caseNumber} y pegalo en el buscador.`);",
       "    }",
+      "",
+      "    setOpeningCase(null);",
       "  };",
       "",
       "  const exportAudit = () => {",
@@ -346,13 +324,46 @@ function patchCedulasApp(source: string) {
   return code;
 }
 
+
+function patchAnalysisV2(source: string) {
+  let code = source;
+  const importAnchor = 'import { createEjeBookmarklet } from "./ejeBookmarklet";';
+  const analysisImport = 'import { analyzePageV2, analyzeTextsV2 } from "./cedulaAnalysis";';
+
+  if (!code.includes(analysisImport)) {
+    if (!code.includes(importAnchor)) {
+      throw new Error("[sec29-analysis-v2] No se encontró el import del bookmarklet.");
+    }
+    code = code.replace(importAnchor, importAnchor + "\n" + analysisImport);
+  }
+
+  const analysisBlock = /export function analyzePage\([\s\S]*?\n}\n\nexport function analyzeTexts\([\s\S]*?\n}\n\nfunction reconstructPageText/;
+  if (!analysisBlock.test(code)) {
+    throw new Error("[sec29-analysis-v2] No se encontró el analizador anterior.");
+  }
+
+  code = code.replace(
+    analysisBlock,
+    "export const analyzePage = analyzePageV2;\n\n"
+      + "export const analyzeTexts = analyzeTextsV2;\n\n"
+      + "function reconstructPageText",
+  );
+
+  code = code.replace(
+    "v1.0 · criterio conservador y trazable",
+    "v1.2 · evidencia operativa y detección por cláusulas",
+  );
+
+  return code;
+}
+
 function sec29ObservationWorkflow(): Plugin {
   return {
     name: "sec29-observation-workflow",
     enforce: "pre",
     transform(source, id) {
-      if (!/[\\/]src[\\/]CedulasApp\\.tsx$/.test(id)) return null;
-      return { code: patchCedulasApp(source), map: null };
+      if (!/[\\/]src[\\/]CedulasApp\.tsx(?:\?.*)?$/.test(id)) return null;
+      return { code: patchAnalysisV2(patchCedulasApp(source)), map: null };
     },
   };
 }
