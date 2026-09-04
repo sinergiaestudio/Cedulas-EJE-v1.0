@@ -22,6 +22,16 @@ await collect(root);
 const bundle = chunks.join("\n");
 
 const required = [
+  "Remitidor de cédulas",
+  "Remisión y observación asistidas",
+  "Para remitir",
+  "Observadas",
+  "Copiar listado a remitir",
+  "Copiar listado a observar",
+  "Botón Remitidor",
+  "Cédulas a remitir",
+  "v1.3",
+  "remisión y observación verificables",
   "Observar",
   "eje-observe-button",
   "caseNumber",
@@ -29,18 +39,16 @@ const required = [
   "copiado",
   "Pegalo en el buscador de EJE",
   "sec29-eje-observar",
-  "v1.2",
-  "evidencia operativa y detección por cláusulas",
   "La actuación dispone observar esta cédula",
   "Se comprobó el código de cédula",
   "Actuaciones y vencimientos",
   "Creador de actuaciones en lote",
   "Creador de Lotes - Actuaciones",
-  "Creador de Lotes - Cédulas",
   "Confronte de Liquidaciones EJF",
   "Sistema de Actuaciones Judiciales",
   "biblioteca-judicial-inteligente.arielmarcelogomez7.chatgpt.site",
   "#lotes-actuaciones",
+  "remitidor-v13.css",
 ];
 
 const forbidden = [
@@ -48,6 +56,7 @@ const forbidden = [
   "/iol-api/api/public/expedientes/lista",
   "/iol-api/api/public/expedientes/ficha",
   "abierto directamente en Actuaciones de EJE",
+  "Copiar lista aprobada",
 ];
 
 const missing = required.filter((token) => !bundle.includes(token));
@@ -58,9 +67,9 @@ if (missing.length || presentForbidden.length) {
     console.error(`La compilación no contiene: ${missing.join(", ")}`);
   }
   if (presentForbidden.length) {
-    console.error(`La compilación conserva lógica que debía eliminarse: ${presentForbidden.join(", ")}`);
+    console.error(`La compilación conserva lógica o rótulos que debían eliminarse: ${presentForbidden.join(", ")}`);
   }
   process.exit(1);
 }
 
-console.log("Compilación verificada: análisis v1.2, evidencia operativa y acceso unificado IA JUDICIAL.");
+console.log("Compilación verificada: Remitidor v1.3, doble listado y observaciones corregidas.");
