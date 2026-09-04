@@ -1,15 +1,15 @@
 <p align="center">
-  <img src="docs/readme/cedulas-logo.svg" alt="Cédulas EJE" width="760">
+  <img src="docs/readme/cedulas-logo.svg" alt="Remitidor de cédulas" width="760">
 </p>
 
-<h2 align="center">Del PDF al lote, sin copiar una por una.</h2>
+<h2 align="center">Del PDF a dos listados verificables: remitir y observar.</h2>
 
 <p align="center">
-  Analiza actuaciones de confronte, distingue remisiones y observaciones y mantiene la decisión final bajo control humano.
+  Analiza providencias de confronte, separa remisiones y observaciones y mantiene la decisión final bajo control humano.
 </p>
 
 <p align="center">
-  <a href="https://sinergiaestudio.github.io/Cedulas-EJE-v1.0/"><strong>Abrir Cédulas EJE</strong></a>
+  <a href="https://sinergiaestudio.github.io/Cedulas-EJE-v1.0/"><strong>Abrir Remitidor de cédulas</strong></a>
   ·
   <a href="https://biblioteca-judicial-inteligente.arielmarcelogomez7.chatgpt.site">Sistema de Actuaciones Judiciales</a>
   ·
@@ -21,7 +21,7 @@
 </p>
 
 <p align="center">
-  <img alt="versión" src="https://img.shields.io/badge/versión-1.2.1-821529">
+  <img alt="versión" src="https://img.shields.io/badge/versión-1.3-821529">
   <img alt="React y TypeScript" src="https://img.shields.io/badge/React%20%2B%20TypeScript-aplicación-365F91">
   <img alt="PDF local" src="https://img.shields.io/badge/PDF-procesamiento%20local-2F7D5C">
   <img alt="revisión humana" src="https://img.shields.io/badge/revisión-humana-B99655">
@@ -30,26 +30,25 @@
 
 ---
 
-## Qué es Cédulas EJE
+## Qué es el Remitidor de cédulas
 
-Cédulas EJE es una herramienta web para analizar PDFs con actuaciones de confronte y asistir la preparación de lotes de notificaciones en EJE.
+El **Remitidor de cédulas** es una herramienta web para analizar PDFs con providencias de confronte y asistir dos tareas distintas:
 
-La aplicación identifica los códigos de cédula, interpreta el sentido de la providencia y separa cuatro situaciones:
+- preparar el listado de cédulas que deben **remitirse** a la Oficina de Notificaciones del fuero;
+- preparar el listado de cédulas que deben **observarse** y facilitar su control manual en EJE.
 
-- piezas que deben **remitirse** a la Oficina de Notificaciones del fuero;
-- cédulas que fueron expresamente **observadas**;
+La aplicación identifica los códigos, interpreta el sentido operativo de cada providencia y distingue cuatro situaciones:
+
+- piezas que deben **remitirse**;
+- cédulas expresamente **observadas**;
 - supuestos **ambiguos** que requieren revisión;
 - actuaciones **ajenas** al circuito, que deben ignorarse.
 
-El análisis no reemplaza la lectura judicial. Su función es reducir la búsqueda manual, mostrar la evidencia y concentrar el control humano en los casos relevantes.
+El análisis no reemplaza la lectura judicial. Su función es reducir la búsqueda mecánica, mostrar la evidencia y concentrar el control humano en los casos relevantes.
 
-> **Automatizar la selección no significa delegar la decisión.**
+> **Automatizar la clasificación no significa delegar la decisión.**
 
 ## Flujo operativo
-
-<p align="center">
-  <img src="docs/readme/cedulas-overview.svg" alt="Flujo operativo de Cédulas EJE desde el PDF hasta el lote o la observación" width="100%">
-</p>
 
 ```text
 PDF de actuaciones
@@ -58,64 +57,88 @@ Lectura y normalización
         ↓
 Remitir · Observar · Revisar · Ignorar
         ↓
-Lista aprobada / acceso asistido a EJE
+Copiar listado a remitir / copiar listado a observar
+        ↓
+Botón Remitidor en EJE / control manual de observaciones
 ```
 
 ## Criterios de decisión
 
 | Resultado | Condición principal | Tratamiento |
 |---|---|---|
-| **Remitir** | La actuación ordena expresamente remitir digitalmente la pieza a la Oficina de Notificaciones para su diligenciamiento. | La cédula puede seleccionarse para el lote. |
-| **Observar** | La providencia individualiza una cédula y dispone expresamente su observación. | Se excluye del lote y aparece la acción **Observar**. |
-| **Revisar** | Hay códigos, lenguaje parcial, actuación mixta o evidencia insuficiente para una decisión segura. | No se incorpora automáticamente. |
-| **Ignorar** | La actuación no pertenece al circuito de remisión a la Oficina de Notificaciones. | No genera una fila operativa. |
+| **Remitir** | La actuación ordena expresamente remitir digitalmente la pieza a la Oficina de Notificaciones para su diligenciamiento. | Integra el listado **Para remitir**. |
+| **Observar** | La providencia individualiza una cédula y dispone expresamente su observación. | Integra el listado **Observadas** y conserva la acción individual **Observar**. |
+| **Revisar** | Hay códigos, lenguaje parcial, actuación mixta o evidencia insuficiente para una decisión segura. | No se incorpora automáticamente a ninguno de los dos listados. |
+| **Ignorar** | La actuación no pertenece al circuito de cédulas. | No genera una fila operativa. |
 
 La detección contempla:
 
-- remisiones en singular y plural;
-- actuaciones mixtas con piezas remitidas y observadas;
+- remisiones y observaciones en singular y plural;
+- fórmulas `Obsérvese la cédula ... bajo el código ...`;
+- observaciones de cédulas Ley 22.172;
+- providencias mixtas con una cédula observada y otra remitida;
 - códigos repetidos;
-- cédulas Ley 22.172 ajenas al circuito;
-- separaciones, guiones invisibles y caracteres de ancho cero introducidos por algunos PDFs;
-- evidencia página por página para verificar la clasificación.
+- separaciones y caracteres invisibles introducidos por algunos PDFs;
+- evidencia página por página.
 
-## Analizador por cláusulas — v1.2
+## Analizador v1.3: observaciones aisladas por mandato
 
-La versión 1.2 deja de extraer indiscriminadamente todos los números con formato `NNNN/AAAA` de una página. Cada numeración debe quedar vinculada con una cláusula procesal concreta:
+La versión 1.3 refuerza la lectura de la cláusula **Obsérvese**. La extracción se detiene antes de:
 
-- el código presentado a confronte;
-- la pieza que se remite digitalmente;
-- la cédula que se dispone observar.
+- la motivación del defecto, por ejemplo `por poseer`, `por omitir`, `Ello, dado que...`;
+- las actuaciones citadas como fundamento;
+- una orden posterior de remisión dentro de la misma providencia.
 
-Esto evita confundir como cédulas:
+Esto evita convertir en cédulas:
 
 - el número del expediente;
 - el número de la providencia;
-- las actuaciones citadas como fundamento de una observación.
+- las actuaciones citadas;
+- números pertenecientes a un oficio u otra pieza distinta.
 
-La fórmula positiva se comprueba mediante tres elementos concurrentes:
+En una providencia mixta como:
 
 ```text
-remítase / remítanse digitalmente
-+ Oficina de Notificaciones del fuero
-+ diligenciamiento
+obsérvese ... 575112/2026 ...
+y remítase ... 575114/2026 ...
 ```
 
-Las páginas ajenas al circuito no generan decenas de exclusiones artificiales: quedan registradas únicamente en el control página por página.
+el resultado es:
+
+```text
+575112/2026 → Observar
+575114/2026 → Remitir
+```
+
+La regresión de producción utiliza un caso real de 15 páginas y exige:
+
+```text
+9 cédulas para remitir
+6 cédulas para observar
+0 casos a revisar
+1 página ajena
+```
 
 ## Evidencia operativa
 
-El desplegable **Ver evidencia** muestra ahora el fragmento del proveído que sustenta la decisión, no el encabezado institucional.
+El desplegable **Ver evidencia** comienza en el fragmento del proveído que sustenta la decisión, no en el encabezado institucional.
 
-- Para **Remitir**, comienza en la cláusula de confronte y conserva la orden de remisión.
-- Para **Observar**, comienza en `Obsérvese la cédula…` e incluye el motivo.
-- Para Ley 22.172, muestra la cláusula específica que determina su tratamiento.
+- Para **Remitir**, conserva la cláusula de confronte y la orden de remisión.
+- Para **Observar**, comienza en `Obsérvese la cédula...` e incluye el motivo.
+- En las providencias mixtas, cada código queda vinculado con su mandato específico.
 
-La evidencia se recorta por extensión, pero preserva la proposición operativa completa siempre que el texto del PDF lo permita.
+## Dos listados independientes
 
-## Acción Observar
+La columna lateral ofrece dos acciones:
 
-Las cédulas expresamente observadas muestran el botón **Observar**.
+- **Copiar listado a remitir**: copia únicamente los códigos aprobados para la Oficina de Notificaciones.
+- **Copiar listado a observar**: copia únicamente los códigos individualizados por una orden expresa de observación.
+
+Ambos listados se generan sin duplicados y con una cédula por línea.
+
+## Acción individual Observar
+
+Cada cédula observada mantiene el botón **Observar**.
 
 Al presionarlo:
 
@@ -124,25 +147,25 @@ Al presionarlo:
 3. la aplicación informa qué expediente quedó copiado;
 4. el usuario lo pega en el buscador de EJE y presiona `Enter`.
 
-El flujo es deliberadamente simple y estable. La herramienta no intenta calcular ni consultar el identificador interno `expId` de EJE, no redacta la actuación y no ejecuta ninguna decisión procesal.
+La herramienta no intenta calcular el identificador interno `expId`, no redacta la actuación y no ejecuta ninguna decisión procesal.
 
-## Preparación del lote
+## Botón Remitidor
 
 Para las cédulas clasificadas como **Remitir**:
 
 1. cargar el PDF;
 2. revisar códigos, fundamento y evidencia;
-3. confirmar la selección;
-4. copiar la lista aprobada;
-5. abrir **Crear lote** en EJE;
-6. ejecutar el marcador de carga;
+3. copiar el listado a remitir;
+4. abrir **Crear lote** en EJE;
+5. ejecutar el marcador **Botón Remitidor**;
+6. pegar la lista;
 7. revisar el resultado y crear el lote manualmente.
 
-El marcador completa el campo correspondiente, pulsa la acción operativa, verifica la incorporación y se detiene cuando no puede confirmar el resultado.
+El marcador completa el campo correspondiente, pulsa la acción operativa, verifica la incorporación y se detiene cuando no puede confirmar el resultado. Nunca crea definitivamente el lote.
 
 ## Diseño de la interfaz
 
-Cédulas EJE forma parte de la familia **Herramientas SEC29** y comparte:
+El Remitidor forma parte de la familia **Herramientas SEC29** y comparte:
 
 - cabecera institucional no oficial;
 - menú lateral minimizado;
@@ -179,21 +202,24 @@ Compilación de producción:
 npm run build
 ```
 
-La compilación ejecuta pruebas de regresión que verifican remisiones, observaciones, actuaciones mixtas, páginas ajenas y evidencia operativa antes de generar el sitio.
+La compilación ejecuta la regresión real, TypeScript, Vite y una verificación del bundle publicado.
 
 ## Estructura principal
 
 ```text
 src/
-├── CedulasApp.tsx       interfaz, revisión y resultados
-├── cedulaAnalysis.ts    analizador por cláusulas y evidencia
-├── ejeBookmarklet.ts    carga asistida dentro de EJE
-├── index.css            interfaz y adaptación responsive
-└── main.tsx             arranque de React
+├── CedulasApp.tsx          interfaz, revisión y resultados
+├── cedulaAnalysisV3.ts     analizador de remisión y observación
+├── ejeBookmarklet.ts       Botón Remitidor dentro de EJE
+├── index.css               interfaz base
+└── main.tsx                arranque de React
+public/
+└── remitidor-v13.css       estilos del doble listado
 scripts/
-├── test-analysis.mjs    regresiones del analizador
-├── repair-vite-patch.mjs integración de compatibilidad
-└── verify-dist.mjs      control del bundle publicado
+├── test-analysis.mjs       regresión 9/6/0/1
+├── apply-remitidor-v13.mjs integración de compatibilidad
+├── repair-vite-patch.mjs   reparación previa de transformación
+└── verify-dist.mjs         control del bundle publicado
 ```
 
 ## Repositorios relacionados
