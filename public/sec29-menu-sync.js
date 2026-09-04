@@ -4,7 +4,7 @@
   const BASE = "https://sinergiaestudio.github.io";
   const MAIN = `${BASE}/herramientas-j15sec29/`;
   const IA_JUDICIAL = "https://biblioteca-judicial-inteligente.arielmarcelogomez7.chatgpt.site";
-  const CATALOG_VERSION = "6.6.0";
+  const CATALOG_VERSION = "6.7.0";
 
   const modules = [
     {
@@ -42,8 +42,8 @@
     {
       group: "Automatización EJE",
       id: "lotes-cedulas",
-      label: "Creador de Lotes - Cédulas",
-      detail: "Del PDF al lote de notificaciones",
+      label: "Remitidor de cédulas",
+      detail: "Listados para remitir y observar",
       icon: "✉",
       url: `${BASE}/Cedulas-EJE-v1.0/`,
     },
