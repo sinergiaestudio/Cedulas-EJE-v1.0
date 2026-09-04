@@ -1,0 +1,128 @@
+/* ========================================================================== 
+   Remitidor de cédulas · remisión y observación · v1.3
+   ========================================================================== */
+
+.selection-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.selection-summary .selection-box {
+  min-width: 0;
+}
+
+.selection-box.observed.ready {
+  border-color: #dfb8c1;
+  background: var(--wine-soft);
+}
+
+.selection-box.observed.ready > span,
+.selection-box.observed.ready strong {
+  color: var(--wine);
+}
+
+.copy-secondary {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 11px;
+  margin-top: 9px;
+  padding: 13px 14px;
+  border: 1px solid #c88b99;
+  border-radius: 13px;
+  color: var(--wine-dark);
+  background: linear-gradient(180deg, #fffafb, var(--wine-soft));
+  cursor: pointer;
+  text-align: left;
+  transition: background .16s ease, border-color .16s ease, transform .16s ease;
+}
+
+.copy-secondary:hover:not(:disabled) {
+  border-color: var(--wine);
+  background: #f8e8ec;
+  transform: translateY(-1px);
+}
+
+.copy-secondary:disabled {
+  border-color: #d2cdc6;
+  color: #92918f;
+  background: #e6e2dc;
+  cursor: not-allowed;
+}
+
+.copy-secondary > span {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.copy-secondary div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.copy-secondary b {
+  font-size: 12px;
+}
+
+.copy-secondary small {
+  margin-top: 2px;
+  opacity: .72;
+  font-size: 9px;
+}
+
+.metric.exclude {
+  border-bottom-color: var(--wine);
+}
+
+.decision.exclude {
+  color: var(--wine-dark);
+  background: var(--wine-soft);
+}
+
+html[data-theme="dark"] .selection-box.observed.ready {
+  border-color: #6e3543 !important;
+  background: #351720 !important;
+}
+
+html[data-theme="dark"] .selection-box.observed.ready > span,
+html[data-theme="dark"] .selection-box.observed.ready strong {
+  color: #f2b1bf !important;
+}
+
+html[data-theme="dark"] .copy-secondary {
+  color: #f2b1bf;
+  border-color: #6e3543;
+  background: linear-gradient(180deg, #2b171e, #351720);
+}
+
+html[data-theme="dark"] .copy-secondary:hover:not(:disabled) {
+  color: #ffd8e0;
+  border-color: #aa4e63;
+  background: #421d29;
+}
+
+html[data-theme="dark"] .copy-secondary:disabled {
+  color: #7e7f82;
+  border-color: #343e49;
+  background: #202731;
+}
+
+html[data-theme="dark"] .decision.exclude {
+  color: #f2b1bf;
+  background: #351720;
+}
+
+@media (max-width: 430px) {
+  .selection-summary {
+    grid-template-columns: 1fr;
+  }
+}
